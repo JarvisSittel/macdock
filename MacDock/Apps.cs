@@ -461,12 +461,25 @@ public class AppTracker
         Rebuild();
     }
 
+    static readonly string ExplorerExe = IOPath.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "explorer.exe");
+
+    /// <summary>
+    /// The window's AppUserModelID, filling in what Windows assigns internally but doesn't report: File Explorer
+    /// windows belong to "Microsoft.Windows.Explorer" (the ID on the pinned File Explorer shortcut, which has no exe path).
+    /// </summary>
+    static string AppIdOf(ApplicationWindow w)
+    {
+        if (LooksLikeAppId(w.AppUserModelID)) return w.AppUserModelID;
+        if (string.Equals(w.WinFileName, ExplorerExe, StringComparison.OrdinalIgnoreCase)) return "Microsoft.Windows.Explorer";
+        return w.AppUserModelID;
+    }
+
     static string GroupKey(ApplicationWindow w) =>
-        LooksLikeAppId(w.AppUserModelID) ? w.AppUserModelID : (w.WinFileName ?? w.Handle.ToString());
+        LooksLikeAppId(AppIdOf(w)) ? AppIdOf(w) : (w.WinFileName ?? w.Handle.ToString());
 
     static AppItem MatchPinned(ApplicationWindow w, List<AppItem> pinned)
     {
-        string aumid = w.AppUserModelID, exe = w.WinFileName;
+        string aumid = AppIdOf(w), exe = w.WinFileName;
         foreach (var p in pinned)
             if (p.MatchAppId != null && string.Equals(p.MatchAppId, aumid, StringComparison.OrdinalIgnoreCase))
                 return p;
