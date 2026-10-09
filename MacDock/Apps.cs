@@ -87,12 +87,15 @@ public class AppItem : IconItem
         ImageSource icon = IconLoader.Override(exe != null ? IOPath.GetFileNameWithoutExtension(exe) : null, Pinned?.Name, appId);
         if (icon == null)
         {
-            if (Pinned?.Path != null) icon = IconLoader.ForPath(Pinned.Path);
+            if (Pinned?.Path != null) icon = FileIcon(Packaged.Current(Pinned.Path));
             else if (appId != null) icon = IconLoader.ForAppId(appId);
-            else if (exe != null) icon = IconLoader.ForPath(exe);
+            else if (exe != null) icon = FileIcon(exe);
         }
         Icon.Source = icon ?? w?.Icon;
     }
+
+    /// <summary>Packaged apps (e.g. Arc) use their package logo; their exe may have no icon at all.</summary>
+    static ImageSource FileIcon(string path) => IconLoader.ForAppId(Packaged.AppIdForExe(path)) ?? IconLoader.ForPath(path);
 
     public void RefreshState()
     {
@@ -177,7 +180,7 @@ public class AppItem : IconItem
         try
         {
             if (Pinned?.Path != null)
-                Start(Pinned.Path, string.Join(" ", new[] { Pinned.Args, extraArgs }.Where(a => !string.IsNullOrEmpty(a))));
+                Start(Packaged.Current(Pinned.Path), string.Join(" ", new[] { Pinned.Args, extraArgs }.Where(a => !string.IsNullOrEmpty(a))));
             else if (Pinned?.AppId != null)
                 ShellHelper.ActivateApplication(Pinned.AppId, extraArgs ?? "");
             else
@@ -472,7 +475,7 @@ public class AppTracker
         bool subApp = aumid != null && (aumid.Contains("_crx_") || aumid.Contains('!'));
         if (subApp || exe == null) return null;
         foreach (var p in pinned)
-            if ((string.Equals(p.MatchExe, exe, StringComparison.OrdinalIgnoreCase) || LaunchedVia(p, exe))
+            if ((string.Equals(p.MatchExe, exe, StringComparison.OrdinalIgnoreCase) || Packaged.SameApp(p.MatchExe, exe) || LaunchedVia(p, exe))
                 && (p.MatchAppId == null || !LooksLikeAppId(aumid)))
                 return p;
         return null;
