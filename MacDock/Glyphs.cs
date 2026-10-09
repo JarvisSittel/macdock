@@ -27,6 +27,10 @@ static class Glyphs
     public static readonly Geometry ChevronLeft = G("M14.5,7 L9.5,12 L14.5,17");
     public static readonly Geometry ChevronRight = G("M9.5,7 L14.5,12 L9.5,17");
     public static readonly Geometry Close = G("M6,6 L18,18 M18,6 L6,18");
+    public static readonly Geometry Play = G("M7.5,4.5 L19.5,12 L7.5,19.5 Z");
+    public static readonly Geometry Pause = G("M8.5,5.5 L8.5,18.5 M15.5,5.5 L15.5,18.5");
+    public static readonly Geometry Previous = G("M5,5 L7.6,5 L7.6,19 L5,19 Z M19.5,5 L19.5,19 L8.5,12 Z");
+    public static readonly Geometry Next = G("M19,5 L16.4,5 L16.4,19 L19,19 Z M4.5,5 L4.5,19 L15.5,12 Z");
 
     public static Shapes.Path Stroke(Geometry g, double thickness = 1.8, double opacity = 1) => new()
     {

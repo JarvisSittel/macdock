@@ -32,6 +32,7 @@ sealed class ControlCenter
     readonly Border _netGlyph = new() { VerticalAlignment = VerticalAlignment.Center };
     readonly TextBlock _netName = new() { FontSize = 13, TextTrimming = TextTrimming.CharacterEllipsis };
     readonly TextBlock _netStatus = new() { FontSize = 11, Foreground = Ui.SecondaryBrush };
+    readonly NowPlayingCard _nowPlaying;
     bool _syncing;
 
     public ControlCenter(DockWindow dock, VolumeService volume, FrameworkElement anchor)
@@ -85,6 +86,7 @@ sealed class ControlCenter
         }));
 
         var root = new StackPanel { Width = PanelWidth };
+        root.Children.Add(_nowPlaying = new NowPlayingCard(dock.Dispatcher));
         root.Children.Add(Heading("Sound"));
         root.Children.Add(volumeRow);
         root.Children.Add(deviceButton);
@@ -119,6 +121,7 @@ sealed class ControlCenter
             return;
         }
         _deviceList.Visibility = Visibility.Collapsed;
+        _nowPlaying.Refresh();
         SyncVolume();
         RefreshNetwork();
         _popup.IsOpen = true;
