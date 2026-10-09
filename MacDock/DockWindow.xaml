@@ -1,0 +1,30 @@
+<Window x:Class="MacDock.DockWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="MacDock"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        ShowActivated="False"
+        Topmost="True"
+        ResizeMode="NoResize"
+        AllowDrop="True"
+        FontFamily="{StaticResource UiFont}"
+        TextOptions.TextRenderingMode="Grayscale">
+    <Canvas x:Name="Root">
+        <Canvas.RenderTransform>
+            <TranslateTransform x:Name="Slide" />
+        </Canvas.RenderTransform>
+
+        <!-- Styled like Flow Launcher's window: translucent #202020 over blur, 1px #3f3f3f border, Windows 11 corners. -->
+        <Border x:Name="PillOuter" BorderBrush="{StaticResource WindowBorderBrush}" BorderThickness="1" />
+
+        <Canvas x:Name="ItemsLayer" />
+
+        <Border x:Name="LabelBox" Visibility="Collapsed" CornerRadius="5" Background="{StaticResource PanelBrush}"
+                BorderBrush="{StaticResource WindowBorderBrush}" BorderThickness="1" Padding="10,4,10,5" IsHitTestVisible="False">
+            <TextBlock x:Name="LabelText" Foreground="{StaticResource TextBrush}" FontSize="13" />
+        </Border>
+    </Canvas>
+</Window>
