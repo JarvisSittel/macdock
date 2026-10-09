@@ -472,10 +472,26 @@ public class AppTracker
         bool subApp = aumid != null && (aumid.Contains("_crx_") || aumid.Contains('!'));
         if (subApp || exe == null) return null;
         foreach (var p in pinned)
-            if (p.MatchExe != null && string.Equals(p.MatchExe, exe, StringComparison.OrdinalIgnoreCase)
+            if ((string.Equals(p.MatchExe, exe, StringComparison.OrdinalIgnoreCase) || LaunchedVia(p, exe))
                 && (p.MatchAppId == null || !LooksLikeAppId(aumid)))
                 return p;
         return null;
+    }
+
+    /// <summary>
+    /// Shortcuts that start an app through a launcher, e.g. Discord's "Update.exe --processStart Discord.exe",
+    /// which runs Discord\app-1.0.x\Discord.exe. The window belongs to the pin if its exe lives under the launcher's
+    /// folder and the shortcut's arguments name it. (Windows matches these by an app ID such apps set on their
+    /// process, which other programs can't read.)
+    /// </summary>
+    static bool LaunchedVia(AppItem pin, string exe)
+    {
+        var link = pin.Link;
+        if (link?.TargetPath == null || string.IsNullOrEmpty(link.Arguments)) return false;
+        var launcherDir = IOPath.GetDirectoryName(link.TargetPath);
+        return launcherDir != null
+            && exe.StartsWith(launcherDir + IOPath.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)
+            && link.Arguments.Contains(IOPath.GetFileName(exe), StringComparison.OrdinalIgnoreCase);
     }
 
     // --- Pinning and ordering ------------------------------------------------------
