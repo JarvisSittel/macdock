@@ -309,9 +309,21 @@ sealed class ClockPanel
         catch { } // some apps have no logo; the card just goes without
     }
 
-    void ClearAll()
+    /// <summary>
+    /// Dismisses each notification in turn. Listener.ClearNotifications() fails with "element not found" for apps
+    /// without package identity (like this one), but removing them one at a time works.
+    /// </summary>
+    async void ClearAll()
     {
-        try { Listener.ClearNotifications(); } catch (Exception e) { Log.Error("clear notifications", e); }
+        try
+        {
+            foreach (var n in await Listener.GetNotificationsAsync(NotificationKinds.Toast))
+            {
+                try { Listener.RemoveNotification(n.Id); }
+                catch (Exception e) { Log.Error("dismiss notification", e); }
+            }
+        }
+        catch (Exception e) { Log.Error("clear notifications", e); }
         _signature = null;
         RefreshNotifications();
     }
